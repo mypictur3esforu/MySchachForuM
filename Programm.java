@@ -1,15 +1,10 @@
 //package MySchachForu(m);
-
-import java.net.Inet4Address;
 import java.util.Scanner;
-
-import javax.print.DocFlavor.STRING;
 
 public class Programm {
     String toMove = "white";
     String doneMove, move;
     String[][] court = new String[8][8];
-    String[] reihe1 = new String[]{"wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"};
     String[] reihe2 = new String[8];
     String[] reihe3 = new String[8];
     String[] reihe4 = new String[8];
@@ -24,8 +19,10 @@ public class Programm {
     }
     
     void CourtDefinition(){
-        for (int i = 0; i < reihe1.length; i++) {
-            reihe3[i] = "0";
+        for (int i = 0; i < reihe2.length; i++) {
+          for(int z = 0; z < 8; z++){  
+            court[i][z] = "0";
+          }
             reihe4[i] = "0";
             reihe5[i] = "0";
             reihe6[i] = "0";
@@ -48,6 +45,7 @@ public class Programm {
             toMove = "white";
         }
     }
+    @SuppressWarnings("unused")
     void MakeMove(){
         String[] enteredMove = new String[10];
         enteredMove = move.split("");
@@ -55,6 +53,6 @@ public class Programm {
         int fromColumn = Integer.parseInt(enteredMove[1]);
         int toRow = Integer.parseInt(enteredMove[2]);
         int toColumn = Integer.parseInt(enteredMove[3]);
-        String chosenPiece = 
+        String chosenPiece = "";
     }
 }
