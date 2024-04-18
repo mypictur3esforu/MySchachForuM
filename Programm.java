@@ -23,6 +23,7 @@ public class Programm {
         MakeMove();
         CheckMove();
         ChangeTurn();
+        start();
     }
     
     void BordDefinition(){
@@ -72,7 +73,6 @@ public class Programm {
         court[moveToSquare] = court[isOnSquare];
         court[isOnSquare] = "0";
         //CheckBoard();
-        start();
     }
 
     String Regex(String stringTosearch, String expression, int arrayNumber){
@@ -114,12 +114,7 @@ public class Programm {
 
     String ConvertNotationToPiece(String notation){
         String convertToPiece = Regex(notation, "[a-z]",0);
-        if (toMove == "white") {
-            chosenPiece = "white ";
-        }
-        if (toMove == "black") {
-            chosenPiece = "black ";
-        }
+        chosenPiece = toMove + " ";
         switch (convertToPiece){
             case " ", "P" -> chosenPiece += "Pawn";
             case "R" -> chosenPiece += "Rook";
@@ -137,7 +132,7 @@ public class Programm {
 
 
     void ChangeTurn(){
-        if (toMove.equals("white") ) {
+        if (toMove.equals("white")) {
             toMove = "black";
         }else{
             toMove = "white";
