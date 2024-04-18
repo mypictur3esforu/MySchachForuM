@@ -5,14 +5,18 @@ public class Programm {
     String toMove = "white";
     String doneMove, move;
     String[]court = new String[64];
+    int moveToSquare = 0;
 
     void start(){
-        CourtDefinition();
+        BordDefinition();
         EnterMove();
+        ConvertSquare();
+        CheckPiece();
+        CheckMove();
         ChangeTurn();
     }
     
-    void CourtDefinition(){
+    void BordDefinition(){
         int ersatzI = 0;
         String[] pieces = new String[]{"R","N","B","Q","K","B","N","R"};
         for (int i = 0; i < court.length; i++) {
@@ -31,7 +35,6 @@ public class Programm {
                 ersatzI++;
             }
         }
-        System.out.println(court);
 
     }
     void EnterMove(){
@@ -41,6 +44,43 @@ public class Programm {
         ScanObj.close();
         System.out.println(move);
     }
+
+    void ConvertSquare(){
+        String[] squareChosen = new String[10]; 
+        squareChosen = move.split("");
+        //move[1] = Column
+        //move[2] = Row
+        for (int i = 0; i < Integer.parseInt(squareChosen[1]); i++) {
+            moveToSquare += 8;
+        }
+        moveToSquare -= 1;
+        switch (squareChosen[1]){
+            case a -> moveToSquare += 1;
+            case b -> moveToSquare += 2;
+            case c -> moveToSquare += 3;
+            case d -> moveToSquare += 4;
+            case e -> moveToSquare += 5;
+            case f -> moveToSquare += 6;
+            case g -> moveToSquare += 7;
+            case h -> moveToSquare += 8;
+
+        }
+        System.out.println();
+    }
+
+    void CheckPiece(){
+
+    }
+
+    void CheckMove(){
+
+    }
+    @SuppressWarnings("unused")
+    void MakeMove(){
+        String[] enteredMove = new String[10];
+        enteredMove = move.split("");
+    }
+
     void ChangeTurn(){
         if (toMove.equals("white") ) {
             toMove = "black";
@@ -48,15 +88,5 @@ public class Programm {
             toMove = "white";
         }
 
-    }
-    @SuppressWarnings("unused")
-    void MakeMove(){
-        String[] enteredMove = new String[10];
-        enteredMove = move.split("");
-        int fromRow = Integer.parseInt(enteredMove[0]);
-        int fromColumn = Integer.parseInt(enteredMove[1]);
-        int toRow = Integer.parseInt(enteredMove[2]);
-        int toColumn = Integer.parseInt(enteredMove[3]);
-        String chosenPiece = "";
     }
 }
