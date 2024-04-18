@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 public class Programm {
     String toMove = "white";
     String doneMove, move;
-    String[]court = new String[64];
+    String[] court = new String[64];
+    String chosenPiece;
     int squareNumber = 0;
     int isOnSquare = 0;
     int moveToSquare = 0;
@@ -17,9 +18,9 @@ public class Programm {
         gameRunning = true;
         }
         EnterMove();
+        ConvertNotationToPiece(move);
         FromToSquare();
         MakeMove();
-        CheckPiece();
         CheckMove();
         ChangeTurn();
     }
@@ -70,9 +71,7 @@ public class Programm {
     void MakeMove(){
         court[moveToSquare] = court[isOnSquare];
         court[isOnSquare] = "0";
-        for (int i = 0; i < court.length; i++) {
-            CheckBoard();
-        }
+        //CheckBoard();
         start();
     }
 
@@ -93,7 +92,7 @@ public class Programm {
             squareNumber -= 8;
         }
         squareNumber += LetterConverter(squareChosen[1]);
-        System.out.println(squareNumber);
+        System.out.println("squareNumber: " + squareNumber);
         return squareNumber;
     }
 
@@ -112,10 +111,26 @@ public class Programm {
         return resolvingNumber;
     }
 
-    void CheckPiece(){
 
+    String ConvertNotationToPiece(String notation){
+        String convertToPiece = Regex(notation, "[a-z]",0);
+        if (toMove == "white") {
+            chosenPiece = "white ";
+        }
+        if (toMove == "black") {
+            chosenPiece = "black ";
+        }
+        switch (convertToPiece){
+            case " ", "P" -> chosenPiece += "Pawn";
+            case "R" -> chosenPiece += "Rook";
+            case "N" -> chosenPiece += "Knight";
+            case "B" -> chosenPiece += "Bisshop";
+            case "Q" -> chosenPiece += "Queen";
+            case "K" -> chosenPiece += "King";
+        }
+        System.out.println("Piece chosen: " + chosenPiece);
+        return chosenPiece;
     }
-
     void CheckMove(){
 
     }
