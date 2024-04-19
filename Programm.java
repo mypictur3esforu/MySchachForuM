@@ -21,8 +21,8 @@ public class Programm {
         EnterMove();
         ConvertNotationToPiece(move);
         FromToSquare();
-        MakeMove();
         CheckMove();
+        MakeMove();
         ChangeTurn();
         start();
     }
@@ -218,6 +218,16 @@ public class Programm {
         }
         for (int i = 7; i < 10; i++) {
             if (toCheckStart + i == toCheckEnd || toCheckStart - i == toCheckEnd) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    boolean CheckLMovement(int toCheckStart, int toCheckEnd){
+        int[] possibleMoves = new int[]{10, 16, 17};
+        for (int i = 0; i < possibleMoves.length; i++) {
+            if (toCheckStart + possibleMoves[i] == toCheckEnd || toCheckStart - possibleMoves[i] == toCheckEnd) {
                 return true;
             }
         }
