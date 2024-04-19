@@ -180,12 +180,12 @@ public class Programm {
 
     boolean CheckRook(){
         if (CheckColumn(move)) {
-            if (CheckBetween(isOnSquare, moveToSquare, "column")) {
+            if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "column")) {
                 System.out.println("ROOOOKKKK MOVES!!!");
                 return true;
             }
         } else if (CheckRow(move)) {
-            if (CheckBetween(isOnSquare, moveToSquare, "row")) {
+            if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "row")) {
                 System.out.println("Wrong direction");
                 return true;
             }
@@ -211,7 +211,7 @@ public class Programm {
 
     boolean CheckQueen(){
         if (CheckRow(move) || CheckColumn(move)) {
-            if (CheckBetween(isOnSquare, moveToSquare, "column") || CheckBetween(isOnSquare, moveToSquare, "row")) {
+            if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "column") || CheckBetweenColumnRow(isOnSquare, moveToSquare, "row")) {
                 System.out.println("Queen moves");
                 return true;
             }
@@ -228,7 +228,7 @@ public class Programm {
     }
 
     boolean CheckPawn(){
-        if (CheckBetween(isOnSquare, moveToSquare, "column")) {
+        if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "column")) {
             if (toMove.equals("white")) {
                 if (isOnSquare >= 48 && isOnSquare <= 55) {
                     if (CheckInFront(isOnSquare, moveToSquare, -2)) {
@@ -297,7 +297,7 @@ public class Programm {
         return Regex(wCapLetter, "[a-z]", 1).equals(Regex(wCapLetter, "[a-z]", 2));
     }
 
-    boolean CheckBetween(int toCheckStart, int toCheckEnd, String columRow){
+    boolean CheckBetweenColumnRow(int toCheckStart, int toCheckEnd, String columRow){
         int add = 0;
         errorType = "Dieser Zug kann nicht ausgeführt werden, da eine Figur im Weg steht";
         switch (columRow){
@@ -322,6 +322,10 @@ public class Programm {
         }
         errorType = "";
         return TakePossible(toCheckEnd);
+    }
+
+    boolean CheckBetweenDiagonal(){
+        return false;
     }
 
     boolean TakePossible(int toCheckEnd){
