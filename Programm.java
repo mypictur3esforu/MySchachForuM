@@ -210,8 +210,10 @@ public class Programm {
 
     boolean CheckQueen(){
         if (CheckRow(move) || CheckColumn(move)) {
-            System.out.println("Queen moves");
-            return true;
+            if (CheckBetween(isOnSquare, moveToSquare, "column") || CheckBetween(isOnSquare, moveToSquare, "row")) {
+                System.out.println("Queen moves");
+                return true;
+            }
         }
         return false;
     }
