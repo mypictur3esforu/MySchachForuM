@@ -127,22 +127,52 @@ public class Programm {
         return chosenPiece;
     }
     void CheckMove(){
+        boolean moveLegal = false;
         System.out.println("chosen: " + chosenPiece);
         String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 1);
         System.out.println("piecesWOColor: " + piecesWOColor);
         switch (piecesWOColor){
-            case "Rook" -> checkRook();
+            case "Rook" -> moveLegal = CheckRook();
+            case "Knight" -> CheckKnight();
+            case "Bishop" -> CheckBishop();
+            case "Queen" -> CheckQueen();
+            case "King" -> CheckKing();
         }
     }
 
-    boolean checkRook(){
+    boolean CheckRook(){
         if (CheckColumn(move)) {
             System.out.println("ROOOOKKKK MOVES!!!");
             return true;
         } else if (CheckRow(move)) {
             System.out.println("Wrong direction");
+            return true;
         }
-        return true;
+        return false;
+    }
+
+    boolean CheckKnight(){
+        return false;
+    }
+
+    boolean CheckBishop(){
+        if(CheckDiagonal(isOnSquare, moveToSquare)){
+            System.out.println("Bishop moves");
+            return true;
+        }
+        return false;
+    }
+
+    boolean CheckQueen(){
+        if (CheckRow(move) || CheckColumn(move)) {
+            System.out.println("Queen moves");
+            return true;
+        }
+        return false;
+    }
+
+    boolean CheckKing(){
+        return false;
     }
 
     boolean CheckColumn(String toCheck){
@@ -151,35 +181,23 @@ public class Programm {
         return Regex(wCapLetter, "[0-9]", 1).equals(Regex(wCapLetter, "[0-9]", 0));
     }
 
-    boolean checkColumnAgain(int toCheckStart, int toCheckEnd){
-        int difference = toCheckStart-toCheckEnd;
-        if (difference < 0) {
-            difference *= -1;
-        }
-        if ( difference % 8 == 0) {
-          return true;
-        }else{
-            return false;
-        }
-    }
-
     boolean CheckRow(String toCheck){
         String wCapLetter = Regex(toCheck, "[A-Z]", 1);
         //funktioniert!! wCapLetter = Regex(wCapLetter, "[0-9]", 1);
         return Regex(wCapLetter, "[a-z]", 1).equals(Regex(wCapLetter, "[a-z]", 2));
     }
 
-    boolean checkRow1(int toCheckStart, int toCheckEnd){
-        //entweder <= 7 oder < 8
-        boolean checker = false;
-        int rowMax = 7;
-        for (int rowStart = 0; rowStart < court.length; rowStart += 8) {
-            if (toCheckStart >= rowStart && toCheckStart <= rowMax && toCheckEnd >= rowStart && toCheckEnd <= rowMax) {
-                checker = true;
-                break;
+    boolean CheckDiagonal(int toCheckStart, int toCheckEnd){
+        int checkLeft = 7;
+        int checkRight = 9;
+        for (int i = 0; i <= 8; i++) {
+            if (toCheckStart + checkLeft == toCheckEnd || toCheckStart + checkRight == toCheckEnd || toCheckStart - checkLeft == toCheckEnd || toCheckStart - checkRight == toCheckEnd) {
+                return true;
             }
+            checkLeft += 7;
+            checkRight += 9;
         }
-        return checker;
+        return false;
     }
 
     void ChangeTurn(){
