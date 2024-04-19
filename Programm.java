@@ -78,7 +78,7 @@ public class Programm {
     String Regex(String stringTosearch, String expression, int arrayNumber){
         Pattern findLetter = Pattern.compile(expression, Pattern.MULTILINE);
         String[] splitted = new String[10];
-        splitted = move.split(findLetter.pattern());
+        splitted = stringTosearch.split(findLetter.pattern());
         //System.out.println("splitted = " + splitted[arrayNumber]);
         return splitted[arrayNumber];
     }
@@ -119,7 +119,7 @@ public class Programm {
             case " ", "P" -> chosenPiece += "Pawn";
             case "R" -> chosenPiece += "Rook";
             case "N" -> chosenPiece += "Knight";
-            case "B" -> chosenPiece += "Bisshop";
+            case "B" -> chosenPiece += "Bishop";
             case "Q" -> chosenPiece += "Queen";
             case "K" -> chosenPiece += "King";
         }
@@ -127,9 +127,60 @@ public class Programm {
         return chosenPiece;
     }
     void CheckMove(){
-
+        System.out.println("chosen: " + chosenPiece);
+        String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 1);
+        System.out.println("piecesWOColor: " + piecesWOColor);
+        switch (piecesWOColor){
+            case "Rook" -> checkRook();
+        }
     }
 
+    boolean checkRook(){
+        if (CheckColumn(move)) {
+            System.out.println("ROOOOKKKK MOVES!!!");
+            return true;
+        } else if (CheckRow(move)) {
+            System.out.println("Wrong direction");
+        }
+        return true;
+    }
+
+    boolean CheckColumn(String toCheck){
+        String wCapLetter = Regex(toCheck, "[A-Z]", 1);
+        //funktioniert!! wCapLetter = Regex(wCapLetter, "[0-9]", 1);
+        return Regex(wCapLetter, "[0-9]", 1).equals(Regex(wCapLetter, "[0-9]", 0));
+    }
+
+    boolean checkColumnAgain(int toCheckStart, int toCheckEnd){
+        int difference = toCheckStart-toCheckEnd;
+        if (difference < 0) {
+            difference *= -1;
+        }
+        if ( difference % 8 == 0) {
+          return true;
+        }else{
+            return false;
+        }
+    }
+
+    boolean CheckRow(String toCheck){
+        String wCapLetter = Regex(toCheck, "[A-Z]", 1);
+        //funktioniert!! wCapLetter = Regex(wCapLetter, "[0-9]", 1);
+        return Regex(wCapLetter, "[a-z]", 1).equals(Regex(wCapLetter, "[a-z]", 2));
+    }
+
+    boolean checkRow1(int toCheckStart, int toCheckEnd){
+        //entweder <= 7 oder < 8
+        boolean checker = false;
+        int rowMax = 7;
+        for (int rowStart = 0; rowStart < court.length; rowStart += 8) {
+            if (toCheckStart >= rowStart && toCheckStart <= rowMax && toCheckEnd >= rowStart && toCheckEnd <= rowMax) {
+                checker = true;
+                break;
+            }
+        }
+        return checker;
+    }
 
     void ChangeTurn(){
         if (toMove.equals("white")) {
@@ -137,7 +188,6 @@ public class Programm {
         }else{
             toMove = "white";
         }
-
     }
 
     void CheckBoard(){
