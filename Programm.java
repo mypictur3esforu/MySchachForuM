@@ -4,7 +4,8 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String doneMove, move, chosenPiece, errorType;
+    String doneMove, move, chosenPiece;
+    String errorType = "";
     String[] court = new String[64];
     int squareNumber = 0;
     int isOnSquare = 0;
@@ -32,7 +33,7 @@ public class Programm {
     }
 
     void MoveIllegal(){
-        System.out.println("Der Zug " + move + " ist leider nicht legal. " + errorType + "\nDu musst einen neuen Zug eingaben!");
+        System.out.println("Der Zug " + move + " ist leider nicht legal. " + errorType + "\nDu musst einen neuen Zug eingeben!");
         errorType = "";
     }
     
@@ -70,10 +71,13 @@ public class Programm {
         pieceOnSquare = court[isOnSquare].split("");
         if (ConvertColor(pieceOnSquare[0]).equals(toMove)) {
             moveLegal = pieceOnSquare[1].equals(Regex(move, "[a-z]...", 0));
+            if (!moveLegal) {
+                errorType = "Diese Figur kann dort nicht hingehen!";
+            }
         }else{
+            errorType = "Die gewählte Figur gehört nicht zu dir!";
             moveLegal = false;
         }
-        errorType = "Die gewählte Figur steht nicht auf diesem Feld!";
     }
 
     void FromToSquare(){
@@ -156,7 +160,7 @@ public class Programm {
 
     void CheckMove(){
         System.out.println("chosen: " + chosenPiece);
-        String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 0);
+        String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 1);
         System.out.println("piecesWOColor: " + piecesWOColor);
         switch (piecesWOColor){
             case "Rook" -> moveLegal = CheckRook();
@@ -175,11 +179,15 @@ public class Programm {
 
     boolean CheckRook(){
         if (CheckColumn(move)) {
-            System.out.println("ROOOOKKKK MOVES!!!");
-            return true;
+            if (CheckBetween(isOnSquare, moveToSquare, "column")) {
+                System.out.println("ROOOOKKKK MOVES!!!");
+                return true;
+            }
         } else if (CheckRow(move)) {
-            System.out.println("Wrong direction");
-            return true;
+            if (CheckBetween(isOnSquare, moveToSquare, "row")) {
+                System.out.println("Wrong direction");
+                return true;
+            }
         }
         return false;
     }
@@ -217,24 +225,35 @@ public class Programm {
     }
 
     boolean CheckPawn(){
-        if (toMove.equals("white")) {
-            if (isOnSquare >= 48 && isOnSquare <= 55) {
-                return CheckInFront(isOnSquare - 1, moveToSquare, -1);
-            }else{
+        if (CheckBetween(isOnSquare, moveToSquare, "column")) {
+            if (toMove.equals("white")) {
+                if (isOnSquare >= 48 && isOnSquare <= 55) {
+                    if (CheckInFront(isOnSquare, moveToSquare, -2)) {
+                        System.out.println("Pawn moves! 2");
+                        return true;
+                    } else {
+                        return CheckInFront(isOnSquare, moveToSquare, -1);
+                    }
+                } else {
                     return CheckInFront(isOnSquare, moveToSquare, -1);
+                }
             }
-        }
-        if (toMove.equals("black")) {
-            if (isOnSquare >= 8 && isOnSquare <= 15) {
-                return CheckInFront(isOnSquare + 1, moveToSquare, 1);
-            }else{
-                return CheckInFront(isOnSquare, moveToSquare, 1);
+            if (toMove.equals("black")) {
+                if (isOnSquare >= 8 && isOnSquare <= 15) {
+                    if (CheckInFront(isOnSquare, moveToSquare, 2)) {
+                        System.out.println("Pawn moves! 2");
+                        return true;
+                    }
+                } else {
+                    return CheckInFront(isOnSquare, moveToSquare, 1);
+                }
             }
         }
         return false;
     }
 
     boolean CheckInFront(int toCheckStart, int toCheckEnd, int frontOrBack){
+        frontOrBack *= 8;
         if (toCheckStart + frontOrBack == toCheckEnd) {
             return true;
         }
@@ -273,6 +292,30 @@ public class Programm {
         String wCapLetter = Regex(toCheck, "[A-Z]", 1);
         //funktioniert!! wCapLetter = Regex(wCapLetter, "[0-9]", 1);
         return Regex(wCapLetter, "[a-z]", 1).equals(Regex(wCapLetter, "[a-z]", 2));
+    }
+
+    boolean CheckBetween(int toCheckStart, int toCheckEnd, String columRow){
+        int add;
+        errorType = "Dieser Zug kann nicht ausgeführt werden, da eine Figur im Weg steht";
+        switch (columRow){
+            case "row" -> add = 1;
+            case "column" -> add = 8;
+        }
+            for (int i = 0; i < 64; i += 8) {
+                if (toCheckStart >= toCheckEnd) {
+                    if (!court[toCheckStart - i].equals("0")) {
+                        moveLegal = false;
+                        return false;
+                    }
+                }else{
+                    if (!court[toCheckStart + i].equals("0")) {
+                        moveLegal = false;
+                        return false;
+                    }
+                }
+        }
+        errorType = "";
+        return true;
     }
 
     boolean CheckDiagonal(int toCheckStart, int toCheckEnd){
