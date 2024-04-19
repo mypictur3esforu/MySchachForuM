@@ -4,14 +4,13 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String doneMove, move;
+    String doneMove, move, chosenPiece, errorType;
     String[] court = new String[64];
-    String chosenPiece;
     int squareNumber = 0;
     int isOnSquare = 0;
     int moveToSquare = 0;
     boolean gameRunning = false;
-    boolean reverse = false;
+    boolean moveLegal = false;
 
     void start(){
         if (!gameRunning) {
@@ -21,10 +20,20 @@ public class Programm {
         EnterMove();
         ConvertNotationToPiece(move);
         FromToSquare();
+        CheckInput();
         CheckMove();
-        MakeMove();
-        ChangeTurn();
+        if (moveLegal) {
+         MakeMove();
+         ChangeTurn();
+        }else{
+            MoveIllegal();
+        }
         start();
+    }
+
+    void MoveIllegal(){
+        System.out.println("Der Zug " + move + " ist leider nicht legal. " + errorType + "\nDu musst einen neuen Zug eingaben!");
+        errorType = "";
     }
     
     void BordDefinition(){
@@ -56,10 +65,20 @@ public class Programm {
         System.out.println(move);
     }
 
+    void CheckInput(){
+        String[] pieceOnSquare = new String[2];
+        pieceOnSquare = court[isOnSquare].split("");
+        if (ConvertColor(pieceOnSquare[0]).equals(toMove)) {
+            moveLegal = pieceOnSquare[1].equals(Regex(move, "[a-z]...", 0));
+        }else{
+            moveLegal = false;
+        }
+        errorType = "Die gewählte Figur steht nicht auf diesem Feld!";
+    }
+
     void FromToSquare(){
-        String fromSquare = new String();
+        String fromSquare, toSquare;
         fromSquare = Regex(move, "[a-z][0-9]$", 0);
-        String toSquare = new String();
         toSquare = Regex(move, "[A-Z]..", 1);
         isOnSquare = ConvertSquare(fromSquare);
         moveToSquare = ConvertSquare(" " + toSquare);
@@ -112,6 +131,13 @@ public class Programm {
         return resolvingNumber;
     }
 
+    String ConvertColor(String colorShortcut){
+        switch (colorShortcut){
+            case "w" ->{ return "white";}
+            case "b" -> {return "black";}
+        }
+        return "ERROR";
+    }
 
     String ConvertNotationToPiece(String notation){
         String convertToPiece = Regex(notation, "[a-z]",0);
@@ -127,18 +153,23 @@ public class Programm {
         System.out.println("Piece chosen: " + chosenPiece);
         return chosenPiece;
     }
+
     void CheckMove(){
-        boolean moveLegal = false;
         System.out.println("chosen: " + chosenPiece);
-        String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 1);
+        String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 0);
         System.out.println("piecesWOColor: " + piecesWOColor);
         switch (piecesWOColor){
             case "Rook" -> moveLegal = CheckRook();
-            case "Knight" -> CheckKnight();
-            case "Bishop" -> CheckBishop();
-            case "Queen" -> CheckQueen();
-            case "King" -> CheckKing();
-            case "Pawn" -> CheckPawn();
+            case "Knight" -> moveLegal = CheckKnight();
+            case "Bishop" -> moveLegal = CheckBishop();
+            case "Queen" -> moveLegal = CheckQueen();
+            case "King" -> moveLegal = CheckKing();
+            case "Pawn" -> moveLegal = CheckPawn();
+        }
+        if (!moveLegal) {
+            if (errorType.isEmpty()) {
+                errorType = "Diese Figur kann nicht auf das gewünschte Feld gehen!";
+            }
         }
     }
 
@@ -154,6 +185,10 @@ public class Programm {
     }
 
     boolean CheckKnight(){
+        if (CheckLMovement(isOnSquare, moveToSquare)) {
+            System.out.println("Knight moves");
+            return true;
+        }
         return false;
     }
 
@@ -174,32 +209,26 @@ public class Programm {
     }
 
     boolean CheckKing(){
-        CheckSurround(isOnSquare, moveToSquare);
-        System.out.println("King moves");
+        if (CheckSurround(isOnSquare, moveToSquare)) {
+            System.out.println("King moves");
+            return true;
+        }
         return false;
     }
 
     boolean CheckPawn(){
-        if (toMove == "white") {
+        if (toMove.equals("white")) {
             if (isOnSquare >= 48 && isOnSquare <= 55) {
-                if (CheckInFront(isOnSquare, moveToSquare, -1) || CheckInFront(isOnSquare - 1, moveToSquare, -1)) {
-                    return true;
-                }
+                return CheckInFront(isOnSquare - 1, moveToSquare, -1);
             }else{
-                if (CheckInFront(isOnSquare, moveToSquare, -1)) {
-                    return true;
-                }
+                    return CheckInFront(isOnSquare, moveToSquare, -1);
             }
         }
-        if (toMove == "black") {
+        if (toMove.equals("black")) {
             if (isOnSquare >= 8 && isOnSquare <= 15) {
-                if (CheckInFront(isOnSquare, moveToSquare, 1) || CheckInFront(isOnSquare +1, moveToSquare, 1)) {
-                    return true;
-                }
+                return CheckInFront(isOnSquare + 1, moveToSquare, 1);
             }else{
-                if (CheckInFront(isOnSquare, moveToSquare, 1)) {
-                    return true;
-                }
+                return CheckInFront(isOnSquare, moveToSquare, 1);
             }
         }
         return false;
@@ -223,9 +252,9 @@ public class Programm {
         }
         return false;
     }
-    
+
     boolean CheckLMovement(int toCheckStart, int toCheckEnd){
-        int[] possibleMoves = new int[]{10, 16, 17};
+        int[] possibleMoves = new int[]{10, 15, 16, 17};
         for (int i = 0; i < possibleMoves.length; i++) {
             if (toCheckStart + possibleMoves[i] == toCheckEnd || toCheckStart - possibleMoves[i] == toCheckEnd) {
                 return true;
