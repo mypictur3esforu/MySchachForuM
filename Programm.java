@@ -1,4 +1,5 @@
 //package MySchachForu(m);
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -320,6 +321,17 @@ public class Programm {
                 }
         }
         errorType = "";
+        return TakePossible(toCheckEnd);
+    }
+
+    boolean TakePossible(int toCheckEnd){
+        String[] endSplit = new String[3];
+        endSplit = court[toCheckEnd].split("");
+        if (Objects.equals(ConvertColor(endSplit[0]), toMove)) {
+            moveLegal = false;
+            errorType = "You can not take your own pieces!";
+            return false;
+        }
         return true;
     }
 
