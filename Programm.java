@@ -357,8 +357,9 @@ public class Programm {
     }
 
     void CheckBoard(){
-        for (int i = 0; i < court.length; i++) {
-            System.out.println(court[i]);
+        // for (int i = 0; i < court.length; i++)
+        for (String s : court) {
+            System.out.println(s);
         }
     }
 }
