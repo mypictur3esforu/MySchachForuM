@@ -11,6 +11,7 @@ public class Programm {
     int isOnSquare = 0;
     int moveToSquare = 0;
     boolean gameRunning = false;
+    boolean reverse = false;
 
     void start(){
         if (!gameRunning) {
@@ -137,6 +138,7 @@ public class Programm {
             case "Bishop" -> CheckBishop();
             case "Queen" -> CheckQueen();
             case "King" -> CheckKing();
+            case "Pawn" -> CheckPawn();
         }
     }
 
@@ -172,6 +174,53 @@ public class Programm {
     }
 
     boolean CheckKing(){
+        CheckSurround(isOnSquare, moveToSquare);
+        System.out.println("King moves");
+        return false;
+    }
+
+    boolean CheckPawn(){
+        if (toMove == "white") {
+            if (isOnSquare >= 48 && isOnSquare <= 55) {
+                if (CheckInFront(isOnSquare, moveToSquare, -1) || CheckInFront(isOnSquare - 1, moveToSquare, -1)) {
+                    return true;
+                }
+            }else{
+                if (CheckInFront(isOnSquare, moveToSquare, -1)) {
+                    return true;
+                }
+            }
+        }
+        if (toMove == "black") {
+            if (isOnSquare >= 8 && isOnSquare <= 15) {
+                if (CheckInFront(isOnSquare, moveToSquare, 1) || CheckInFront(isOnSquare +1, moveToSquare, 1)) {
+                    return true;
+                }
+            }else{
+                if (CheckInFront(isOnSquare, moveToSquare, 1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean CheckInFront(int toCheckStart, int toCheckEnd, int frontOrBack){
+        if (toCheckStart + frontOrBack == toCheckEnd) {
+            return true;
+        }
+        return false;
+    }
+
+    boolean CheckSurround(int toCheckStart, int toCheckEnd){
+        if (toCheckStart + 1 == toCheckEnd || toCheckStart - 1 == toCheckEnd) {
+            return true;
+        }
+        for (int i = 7; i < 10; i++) {
+            if (toCheckStart + i == toCheckEnd || toCheckStart - i == toCheckEnd) {
+                return true;
+            }
+        }
         return false;
     }
 
