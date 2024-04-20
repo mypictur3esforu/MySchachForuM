@@ -239,33 +239,23 @@ public class Programm {
         return false;
     }
 
-    boolean CheckPawn(){
-        if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "column")) {
-            if (toMove.equals("white")) {
-                if (isOnSquare >= 48 && isOnSquare <= 55) {
-                    if (CheckInFront(isOnSquare, moveToSquare, -2)) {
-                        System.out.println("Pawn moves! 2");
-                        return true;
-                    } else {
-                        return CheckInFront(isOnSquare, moveToSquare, -1);
-                    }
-                } else {
-                    return CheckInFront(isOnSquare, moveToSquare, -1);
-                }
-            }
-            if (toMove.equals("black")) {
-                if (isOnSquare >= 8 && isOnSquare <= 15) {
-                    if (CheckInFront(isOnSquare, moveToSquare, 2)) {
-                        System.out.println("Pawn moves! 2");
-                        return true;
-                    }
-                }
-                    return CheckInFront(isOnSquare, moveToSquare, 1);
-
+    boolean CheckPawn() {
+        int reverse = 1;
+        int startRow = 8;
+        int endRow = 15;
+        if (toMove.equals("white")) {
+            reverse = -1;
+            startRow = 48;
+            endRow = 55;
+        }
+        if (isOnSquare >= startRow && isOnSquare <= endRow) {
+            if (CheckInFront(isOnSquare, moveToSquare, (2 * reverse))) {
+                System.out.println("Pawn moves! 2");
+                return true;
             }
         }
-        return false;
-    }
+            return CheckInFront(isOnSquare, moveToSquare, reverse);
+        }
 
     boolean CheckInFront(int toCheckStart, int toCheckEnd, int frontOrBack){
         frontOrBack *= 8;
