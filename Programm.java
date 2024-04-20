@@ -1,4 +1,5 @@
 //package MySchachForu(m);
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -16,15 +17,17 @@ public class Programm {
 
     void start(){
         if (!gameRunning) {
-        //BordDefinition();
-        TestBoardDefinition();
+        BordDefinition();
+        //TestBoardDefinition();
         gameRunning = true;
         }
         EnterMove();
         ConvertNotationToPiece(move);
         FromToSquare();
         CheckInput();
-        CheckMove();
+        if (moveLegal) {
+            CheckMove();
+        }
         TakePossible(moveToSquare);
         if (moveLegal) {
          MakeMove();
@@ -62,9 +65,7 @@ public class Programm {
     }
 
     void TestBoardDefinition(){
-        for (int i = 0; i < court.length; i++) {
-            court[i] = "0";
-        }
+        Arrays.fill(court, "0");
         court[59] = "D";
         court[56] = "R";
     }
@@ -85,6 +86,9 @@ public class Programm {
             if (!moveLegal) {
                 ErrorType("Auf dem Feld steht die gewählte Figur nicht!");
             }
+        }else if (court[isOnSquare].equals("0")) {
+            ErrorType("Auf disem Feld steht keine Figur!");
+            moveLegal = false;
         }else{
             ErrorType("Die gewählte Figur gehört nicht zu dir!");
             moveLegal = false;
