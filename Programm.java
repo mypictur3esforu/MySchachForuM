@@ -17,6 +17,8 @@ public class Programm {
     boolean gameRunning = false;
     boolean moveLegal = false;
     boolean premoveActiv = false;
+    boolean whiteKingMoved = false;
+    boolean blackKingMoved = false;
 
     void start(){
         if (gameRunning) {
@@ -109,6 +111,7 @@ public class Programm {
     }
 
     void EnterMove(){
+        CheckBoard();
         Scanner ScanObj = new Scanner(System.in);
         System.out.println("Make your move: ");
         move = ScanObj.nextLine();
@@ -443,12 +446,13 @@ public class Programm {
         return CheckOneDiagonal(toCheckStart, toCheckEnd, add);
     }
 
-    boolean CheckOneDiagonal(int toCheckStart, int toCheckEnd, int i){
-        for (i = i; i < 100; i += i) {
+    boolean CheckOneDiagonal(int toCheckStart, int toCheckEnd, int add){
+        //exponential
+        for (int i = add; i < 100; i += add) {
             if (toCheckStart + i == toCheckEnd) {
                 return true;
             }
-            if (!(court[toCheckStart + i].equals("0"))) {
+            if (!(court[toCheckStart + add].equals("0"))) {
                 ErrorType("Die Figur kann dort nicht hin, da ein andere Figur dazwischen steht!");
                 return false;
             }
