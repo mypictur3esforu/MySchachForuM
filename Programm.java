@@ -202,9 +202,9 @@ public class Programm {
     }
 
     boolean CheckBishop(){
-        if(CheckDiagonal(isOnSquare, moveToSquare)){
-            System.out.println("Bishop moves");
-            return true;
+        if(CheckDiagonal(isOnSquare, moveToSquare) && CheckBetweenDiagonal(isOnSquare, moveToSquare)){
+                System.out.println("Bishop moves");
+                return true;
         }
         return false;
     }
@@ -216,7 +216,7 @@ public class Programm {
                 return true;
             }
         }
-        return false;
+        return CheckDiagonal(isOnSquare, moveToSquare) && CheckBetweenDiagonal(isOnSquare, moveToSquare);
     }
 
     boolean CheckKing(){
@@ -324,7 +324,37 @@ public class Programm {
         return TakePossible(toCheckEnd);
     }
 
-    boolean CheckBetweenDiagonal(){
+    boolean CheckBetweenDiagonal(int toCheckStart, int toCheckEnd){
+        int y = toCheckEnd;
+        int x = toCheckStart;
+        int add;
+        int reverse = 1;
+        if (toCheckStart > toCheckEnd) {
+            y = toCheckStart;
+            x = toCheckEnd;
+            reverse = -1;
+        }
+        if ((y - x) % 7 == 0) {
+            add = 7;
+        }else if ((toCheckEnd - toCheckStart) % 9 == 0) {
+            add = 9;
+        }else{
+            errorType = "Das gewünschte Feld ist nicht diagonal zum dem, auf dem die Figur steht!";
+            return false;
+        }
+        add *= reverse;
+        return CheckOneDiagonal(toCheckStart, toCheckEnd, add);
+    }
+
+    boolean CheckOneDiagonal(int toCheckStart, int toCheckEnd, int i){
+        for (i = i; i < 100; i += i) {
+            if (toCheckStart + i == toCheckEnd) {
+                return true;
+            }
+            if (!(court[toCheckStart + i].equals("0"))) {
+                return false;
+            }
+        }
         return false;
     }
 
