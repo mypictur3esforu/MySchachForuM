@@ -16,7 +16,8 @@ public class Programm {
 
     void start(){
         if (!gameRunning) {
-        BordDefinition();
+        //BordDefinition();
+        TestBoardDefinition();
         gameRunning = true;
         }
         EnterMove();
@@ -24,6 +25,7 @@ public class Programm {
         FromToSquare();
         CheckInput();
         CheckMove();
+        TakePossible(moveToSquare);
         if (moveLegal) {
          MakeMove();
          ChangeTurn();
@@ -59,6 +61,14 @@ public class Programm {
         }
     }
 
+    void TestBoardDefinition(){
+        for (int i = 0; i < court.length; i++) {
+            court[i] = "0";
+        }
+        court[59] = "D";
+        court[56] = "R";
+    }
+
     void EnterMove(){
         Scanner ScanObj = new Scanner(System.in);
         System.out.println("Make your move: ");
@@ -73,10 +83,10 @@ public class Programm {
         if (ConvertColor(pieceOnSquare[0]).equals(toMove)) {
             moveLegal = pieceOnSquare[1].equals(Regex(move, "[a-z]...", 0));
             if (!moveLegal) {
-                errorType = "Diese Figur kann dort nicht hingehen!";
+                ErrorType("Auf dem Feld steht die gewählte Figur nicht!");
             }
         }else{
-            errorType = "Die gewählte Figur gehört nicht zu dir!";
+            ErrorType("Die gewählte Figur gehört nicht zu dir!");
             moveLegal = false;
         }
     }
@@ -172,9 +182,7 @@ public class Programm {
             case "Pawn" -> moveLegal = CheckPawn();
         }
         if (!moveLegal) {
-            if (errorType.isEmpty()) {
-                errorType = "Diese Figur kann nicht auf das gewünschte Feld gehen!";
-            }
+                ErrorType("Diese Figur kann nicht auf das gewünschte Feld gehen!");
         }
     }
 
@@ -211,7 +219,7 @@ public class Programm {
 
     boolean CheckQueen(){
         if (CheckRow(move) || CheckColumn(move)) {
-            if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "column") || CheckBetweenColumnRow(isOnSquare, moveToSquare, "row")) {
+            if (CheckBetweenColumnRow(isOnSquare, moveToSquare, "row") || CheckBetweenColumnRow(isOnSquare, moveToSquare, "column")) {
                 System.out.println("Queen moves");
                 return true;
             }
@@ -247,9 +255,9 @@ public class Programm {
                         System.out.println("Pawn moves! 2");
                         return true;
                     }
-                } else {
-                    return CheckInFront(isOnSquare, moveToSquare, 1);
                 }
+                    return CheckInFront(isOnSquare, moveToSquare, 1);
+
             }
         }
         return false;
@@ -276,7 +284,7 @@ public class Programm {
     }
 
     boolean CheckLMovement(int toCheckStart, int toCheckEnd){
-        int[] possibleMoves = new int[]{10, 15, 16, 17};
+        int[] possibleMoves = new int[]{10, 15, 6, 17};
         for (int i = 0; i < possibleMoves.length; i++) {
             if (toCheckStart + possibleMoves[i] == toCheckEnd || toCheckStart - possibleMoves[i] == toCheckEnd) {
                 return true;
@@ -299,29 +307,27 @@ public class Programm {
 
     boolean CheckBetweenColumnRow(int toCheckStart, int toCheckEnd, String columRow){
         int add = 0;
-        errorType = "Dieser Zug kann nicht ausgeführt werden, da eine Figur im Weg steht";
+        int reverse = 1;
         switch (columRow){
             case "row" -> add = 1;
             case "column" -> add = 8;
         }
+        if (toCheckStart > toCheckEnd) {
+            reverse = -1;
+        }
             for (int i = add; i <= 64; i += add) {
-                if (toCheckStart + i == toCheckEnd || toCheckStart - i == toCheckEnd) {
-                    break;
+                if (toCheckStart + (i * reverse) == toCheckEnd) {
+                    return true;
                 }
-                if (toCheckStart >= toCheckEnd) {
-                    if (!court[toCheckStart - i].equals("0")) {
+                    if (!court[toCheckStart + (i * reverse)].equals("0")) {
+                        ErrorType("Die Figur kann dort nicht hin, weil eine andere dazwischen steht!");
                         moveLegal = false;
                         return false;
-                    }
-                }else{
-                    if (!court[toCheckStart + i].equals("0")) {
-                        moveLegal = false;
-                        return false;
-                    }
+
                 }
         }
-        errorType = "";
-        return TakePossible(toCheckEnd);
+        return true;
+        //return TakePossible(toCheckEnd);
     }
 
     boolean CheckBetweenDiagonal(int toCheckStart, int toCheckEnd){
@@ -339,7 +345,7 @@ public class Programm {
         }else if ((toCheckEnd - toCheckStart) % 9 == 0) {
             add = 9;
         }else{
-            errorType = "Das gewünschte Feld ist nicht diagonal zum dem, auf dem die Figur steht!";
+            ErrorType("Das gewünschte Feld ist nicht diagonal zum dem, auf dem die Figur steht!");
             return false;
         }
         add *= reverse;
@@ -352,6 +358,7 @@ public class Programm {
                 return true;
             }
             if (!(court[toCheckStart + i].equals("0"))) {
+                ErrorType("Die Figur kann dort nicht hin, da ein andere Figur dazwischen steht!");
                 return false;
             }
         }
@@ -363,7 +370,7 @@ public class Programm {
         endSplit = court[toCheckEnd].split("");
         if (Objects.equals(ConvertColor(endSplit[0]), toMove)) {
             moveLegal = false;
-            errorType = "You can not take your own pieces!";
+            ErrorType("You can not take your own pieces!");
             return false;
         }
         return true;
@@ -394,6 +401,12 @@ public class Programm {
         // for (int i = 0; i < court.length; i++)
         for (String s : court) {
             System.out.println(s);
+        }
+    }
+
+    void ErrorType(String error){
+        if (errorType.isEmpty()) {
+            errorType = error;
         }
     }
 }
