@@ -6,22 +6,30 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String doneMove, move, chosenPiece;
+    String enPassant, move, chosenPiece, moveCombo;
     String errorType = "";
     String[] court = new String[64];
+    int enPassantSquare;
     int squareNumber = 0;
     int isOnSquare = 0;
     int moveToSquare = 0;
+    int premoveOrder = 0;
     boolean gameRunning = false;
     boolean moveLegal = false;
+    boolean premoveActiv = false;
 
     void start(){
+        if (gameRunning) {
+            CheckGameStatus();
+        }
         if (!gameRunning) {
         BordDefinition();
         //TestBoardDefinition();
         gameRunning = true;
         }
-        EnterMove();
+        if (!premoveActiv) {
+            EnterMove();
+        }else{Premove();}
         ConvertNotationToPiece(move);
         FromToSquare();
         CheckInput();
@@ -35,7 +43,37 @@ public class Programm {
         }else{
             MoveIllegal();
         }
-        start();
+        EnPassantable();
+        if (gameRunning) {
+            start();
+        }
+    }
+
+    void CheckGameStatus(){
+        String[] kings = new String[2];
+        int kingNumber = 0;
+        for (int i = 0; i < court.length; i++) {
+            if (ConvertSquareToPiece(court[i], false).equals("King")) {
+                kings[kingNumber] = ConvertSquareToPiece(court[i], true);
+                kingNumber ++;
+            }
+        }
+        if (kingNumber == 1) {
+            System.out.println("Gewinner: " + kings[0]);
+        }
+    }
+
+    void CheckForCheck(){
+    }
+
+    void EnPassantable(){
+        enPassantSquare = 1000;
+        if (enPassant.equals("true")) switch (toMove) {
+            case "white" -> enPassantSquare = moveToSquare - 8;
+            case "black" -> enPassantSquare = moveToSquare + 8;
+            //bisschen verdreht weil es ist immer der andere am Zug
+        }
+        enPassant = "false";
     }
 
     void MoveIllegal(){
@@ -76,6 +114,23 @@ public class Programm {
         move = ScanObj.nextLine();
         //ScanObj.close();
         System.out.println(move);
+        if (move.equals("premove")) {
+            Scanner ScanObjNr2 = new Scanner(System.in);
+            System.out.println("Type in your move order: ");
+            moveCombo = ScanObjNr2.nextLine();
+            Premove();
+        }
+    }
+
+    void Premove(){
+        premoveActiv = true;
+        String[] moves = moveCombo.split(" ");
+        move = moves[premoveOrder];
+        moves[premoveOrder] = "Done";
+        if (moves[moves.length - 1].equals("Done")) {
+            premoveActiv = false;
+        }
+        premoveOrder++;
     }
 
     void CheckInput(){
@@ -159,18 +214,35 @@ public class Programm {
     }
 
     String ConvertNotationToPiece(String notation){
-        String convertToPiece = Regex(notation, "[a-z]",0);
+        //man kann alles unnötige wegmachen, sodass man immer nen Array mit 2 teilen hat und braucht dementsprechen keine extra " "
+        String pieceToConvert = Regex(notation, "[a-z]",0);
         chosenPiece = toMove + " ";
-        switch (convertToPiece){
-            case " ", "P" -> chosenPiece += "Pawn";
-            case "R" -> chosenPiece += "Rook";
-            case "N" -> chosenPiece += "Knight";
-            case "B" -> chosenPiece += "Bishop";
-            case "Q" -> chosenPiece += "Queen";
-            case "K" -> chosenPiece += "King";
-        }
+        chosenPiece += ConvertToPiece(pieceToConvert);
         System.out.println("Piece chosen: " + chosenPiece);
         return chosenPiece;
+    }
+
+    String ConvertSquareToPiece(String square, boolean color){
+        if (square.equals("0")) return "0";
+        String[] squareOccupation = square.split("");
+        if (color) {
+            return ConvertColor(squareOccupation[0]) + " " + ConvertToPiece(squareOccupation[1]);
+        }
+        return ConvertToPiece(squareOccupation[1]);
+    }
+
+    String ConvertToPiece(String toConvert){
+        //System.out.println("Convert: " + toConvert);
+        String piece = "ERROR!!!";
+        switch (toConvert){
+            case " ", "P" -> piece = "Pawn";
+            case "R" -> piece = "Rook";
+            case "N" -> piece = "Knight";
+            case "B" -> piece = "Bishop";
+            case "Q" -> piece = "Queen";
+            case "K" -> piece = "King";
+        }
+        return piece;
     }
 
     void CheckMove(){
@@ -250,12 +322,37 @@ public class Programm {
         }
         if (isOnSquare >= startRow && isOnSquare <= endRow) {
             if (CheckInFront(isOnSquare, moveToSquare, (2 * reverse))) {
+                enPassant = "true";
                 System.out.println("Pawn moves! 2");
                 return true;
             }
         }
-            return CheckInFront(isOnSquare, moveToSquare, reverse);
+        if(CheckInFront(isOnSquare, moveToSquare, reverse)){
+            return true;
         }
+            if (CheckEnPassant(reverse)) {
+                return true;
+            }
+
+        return CheckPawnTake(reverse);
+        }
+
+    boolean CheckEnPassant(int reverse){
+        if (isOnSquare + (7 * reverse) == enPassantSquare || isOnSquare + (9 * reverse) == enPassantSquare) {
+            System.out.println("EN PASSANT!!!");
+            court[enPassantSquare + (8 * reverse * -1)] = "0";
+            return court[moveToSquare].equals("0");
+        }
+        return false;
+    }
+
+    boolean CheckPawnTake(int reverse){
+        if (isOnSquare + (7 * reverse) == moveToSquare || isOnSquare + (9 * reverse) == moveToSquare) {
+            System.out.println("PAWN TAKES!!!");
+            return !court[moveToSquare].equals("0");
+        }
+        return false;
+    }
 
     boolean CheckInFront(int toCheckStart, int toCheckEnd, int frontOrBack){
         frontOrBack *= 8;
@@ -392,10 +489,12 @@ public class Programm {
     }
 
     void CheckBoard(){
-        // for (int i = 0; i < court.length; i++)
-        for (String s : court) {
-            System.out.println(s);
+         for (int i = 0; i < court.length; i++){
+             System.out.println(i + ": " + court[i]);
         }
+         /*for (String s : court) {
+         System.out.println(s);
+         }*/
     }
 
     void ErrorType(String error){
