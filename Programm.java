@@ -6,7 +6,8 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String enPassant, move, chosenPiece, moveCombo, isInCheck, checkFrom;
+    String move, chosenPiece, moveCombo, isInCheck, checkFrom;
+    String enPassant = "false";
     String errorType = "";
     String[] court = new String[64];
     int enPassantSquare;
@@ -14,6 +15,7 @@ public class Programm {
     int isOnSquare = 0;
     int moveToSquare = 0;
     int premoveOrder = 0;
+    int step = 0;
     boolean gameRunning = false;
     boolean moveLegal = false;
     boolean premoveActiv = false;
@@ -84,7 +86,7 @@ public class Programm {
         }
         int kingToCheck = Integer.parseInt(toCheck);
         for (int i = 0; i < 2; i++) {
-            if (CheckDiagonalCheck(kingToCheck) || CheckColumRowCheck() || CheckLMovementCheck()) {
+            if (CheckDiagonalCheck(kingToCheck) || CheckColumRowCheck(kingToCheck) || CheckLMovementCheck(kingToCheck)) {
                 if (i == 1) {
                     isInCheck = "white";
                 }else{
@@ -95,17 +97,6 @@ public class Programm {
             isInCheck = "none";
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 
     void EnPassantable(){
         enPassantSquare = 1000;
@@ -231,6 +222,13 @@ public class Programm {
         return squareNumber;
     }
 
+    String ConvertSquareBack(int chosenSquare){
+        String square;
+        square = NumberToLetterConverter(chosenSquare % 8);
+        square += (court.length - (chosenSquare - (chosenSquare % 8)))/ 8;
+        return square;
+    }
+
     int LetterConverter(String letter){
         int resolvingNumber = 0;
         switch (letter){
@@ -244,6 +242,11 @@ public class Programm {
             case "h" -> resolvingNumber = 8;
         }
         return resolvingNumber;
+    }
+
+    String NumberToLetterConverter(int number){
+        String[] letter = new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
+        return letter[number];
     }
 
     String ConvertColor(String colorShortcut){
@@ -532,20 +535,40 @@ public class Programm {
     }
 
     boolean CheckDiagonalCheck(int toCheckStart){
-        int add = 7;
-        for (int i = add; i < 63 && i >= 0; i += add) {
+        int[] add = new int[]{7, -7, 9, -9};
+        for (int i = add[step]; i <= 63 - toCheckStart && i >= -toCheckStart; i += add[step]) {
             String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],false);
             if(potentialChecker.equals("Bishop") || potentialChecker.equals("Queen")){
-                System.out.println("Check: " + potentialChecker);
+                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i));
+                step = 0;
                 return true;
             }
+            if (!potentialChecker.equals("0")) {
+                break;
+            }
+        }
+        if (step <= 1) {
+            step++;
+            CheckDiagonalCheck(toCheckStart);
+        }else{
+            step = 0;
         }
         return false;
     }
-    boolean CheckColumRowCheck(){
+
+    boolean CheckColumRowCheck(int toCheckStart){
         return false;
     }
-    boolean CheckLMovementCheck(){
+
+    boolean CheckLMovementCheck(int toCheckStart){
+        int[] possibleMoves = new int[]{10, 15, 6, 17};
+        //for (int i = 0; i < possibleMoves.length; i++) {
+        for (int possibleMove : possibleMoves) {
+            if (ConvertSquareToPiece(court[toCheckStart + possibleMove], false).equals("Knight")) {
+                System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove));
+                return true;
+            }
+        }
         return false;
     }
 
