@@ -28,8 +28,8 @@ public class Programm {
             CheckGameState();
         }
         if (!gameRunning && gameContinue) {
-        BordDefinition();
-        //TestBoardDefinition();
+        //BordDefinition();
+        TestBoardDefinition();
         gameRunning = true;
         }
         if (gameRunning) {
@@ -79,22 +79,21 @@ public class Programm {
         }
         return -1;
     }
-
+    //methode hat parameter, damit man nicht nur Position von Köningen testen kann, bei CheckGameSate ist die Funktion standardmäßig auf Schwarz
     void CheckForCheck(String toCheck){
         if (toCheck.equals("white") || toCheck.equals("black")) {
             toCheck = GetKingPosition(toCheck) +"";
         }
         int kingToCheck = Integer.parseInt(toCheck);
-        for (int i = 0; i < 2; i++) {
-            if (CheckDiagonalCheck(kingToCheck) || CheckColumRowCheck(kingToCheck) || CheckLMovementCheck(kingToCheck)) {
-                if (i == 1) {
-                    isInCheck = "white";
-                }else{
-                    isInCheck = "black";
-                }
+        for (int i = 0; i < 1; i++) {
+            if (CheckDiagonalCheck(kingToCheck) || CheckLMovementCheck(kingToCheck) ||  CheckForColumnRowCheck(kingToCheck)) {
+                isInCheck = "true";
                 break;
             }
             isInCheck = "none";
+        }
+        if (toCheck.equals(ConvertSquareToPiece(toCheck, false))) {
+            CheckForCheck("white");
         }
     }
 
@@ -136,8 +135,10 @@ public class Programm {
 
     void TestBoardDefinition(){
         Arrays.fill(court, "0");
-        court[59] = "D";
-        court[56] = "R";
+        court[59] = "wD";
+        court[48] = "wR";
+        court[4] = "bK";
+        court[60] = "wK";
     }
 
     void EnterMove(){
@@ -292,6 +293,10 @@ public class Programm {
     String ConvertPieceColor(int square){
         String[] pieceOnSquare = court[square].split("");
         return ConvertColor(pieceOnSquare[0]);
+    }
+
+    int GetRow(int toCheck){
+        return (toCheck - (toCheck % 8)) / 8;
     }
 
     void CheckMove(){
@@ -456,6 +461,7 @@ public class Programm {
             case "row" -> add = 1;
             case "column" -> add = 8;
         }
+        if(toCheckEnd == -1) {return ColumRowCheckCheck(toCheckStart, add);}
         if (toCheckStart > toCheckEnd) {
             reverse = -1;
         }
@@ -472,6 +478,32 @@ public class Programm {
         }
         return true;
         //return TakePossible(toCheckEnd);
+    }
+
+    boolean ColumRowCheckCheck(int toCheckStart, int add){
+        //sehr sehr fies, weil bei row wird alles gecheckt bis ne Figur im weg steht
+        int limit = 64;
+        int minimum = 0;
+        if (add == 1 || add == -1) {
+            minimum = GetRow(toCheckStart);
+            limit = minimum + 7;
+        }
+        for (int i = add; i <= limit - toCheckStart && i >= minimum - toCheckStart; i += add) {
+            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i], false);
+            if (potentialChecker.equals("Rook") || potentialChecker.equals("Queen")) {
+                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i));
+                return true;
+            }
+        }
+        if (add > 0) {
+            add *= -1;
+            ColumRowCheckCheck(toCheckStart, add);
+        }
+        return false;
+    }
+
+    boolean CheckForColumnRowCheck(int toCheck){
+        return CheckBetweenColumnRow(toCheck, -1, "row") || CheckBetweenColumnRow(toCheck, -1, "column");
     }
 
     boolean CheckBetweenDiagonal(int toCheckStart, int toCheckEnd){
@@ -553,10 +585,6 @@ public class Programm {
         }else{
             step = 0;
         }
-        return false;
-    }
-
-    boolean CheckColumRowCheck(int toCheckStart){
         return false;
     }
 
