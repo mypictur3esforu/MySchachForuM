@@ -28,8 +28,8 @@ public class Programm {
             CheckGameState();
         }
         if (!gameRunning && gameContinue) {
-        //BordDefinition();
-        TestBoardDefinition();
+        BordDefinition();
+        //TestBoardDefinition();
         gameRunning = true;
         }
         if (gameRunning) {
@@ -269,6 +269,7 @@ public class Programm {
     }
 
     String ConvertSquareToPiece(String square, boolean color){
+        //square z.B. court[5]
         if (square.equals("0")) return "0";
         String[] squareOccupation = square.split("");
         if (color) {
@@ -297,6 +298,7 @@ public class Programm {
     }
 
     String ConvertPieceColor(int square){
+        //square = Feld Nummer Feld a8 wäre also 0
         String[] pieceOnSquare = court[square].split("");
         return ConvertColor(pieceOnSquare[0]);
     }
@@ -495,9 +497,9 @@ public class Programm {
             limit = minimum + 7;
         }
         for (int i = add; i <= limit - toCheckStart && i >= minimum - toCheckStart; i += add) {
-            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i], false);
-            if (potentialChecker.equals("Rook") || potentialChecker.equals("Queen")) {
-                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i));
+            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i], true);
+            if (potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Rook") || potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Queen")) {
+                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i) + "\nCheck to: " + ConvertPieceColor(toCheckStart) + " King!");
                 return true;
             }
         }
@@ -575,9 +577,9 @@ public class Programm {
     boolean CheckDiagonalCheck(int toCheckStart){
         int[] add = new int[]{7, -7, 9, -9};
         for (int i = add[step]; i <= 63 - toCheckStart && i >= -toCheckStart; i += add[step]) {
-            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],false);
-            if(potentialChecker.equals("Bishop") || potentialChecker.equals("Queen")){
-                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i));
+            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],true);
+            if(potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Bishop") || potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Queen")){
+                System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i) + "\nCheck to: " + ConvertPieceColor(toCheckStart) + " King!");
                 step = 0;
                 return true;
             }
@@ -599,8 +601,9 @@ public class Programm {
         //for (int i = 0; i < possibleMoves.length; i++) {
         for (int possibleMove : possibleMoves) {
             if (toCheckStart + possibleMove >= 0 && toCheckStart + possibleMove < 64) {
-                if (ConvertSquareToPiece(court[toCheckStart + possibleMove], false).equals("Knight")) {
-                    System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove));
+                String potentialChecker = ConvertSquareToPiece(court[toCheckStart + possibleMove], true);
+                if (potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Knight")) {
+                    System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove) + "\nCheck to: " + ConvertPieceColor(toCheckStart));
                     return true;
                 }
             }
@@ -614,6 +617,14 @@ public class Programm {
         }else{
             toMove = "white";
         }
+    }
+
+    String ReverseColor(String color){
+        switch (color){
+            case "white" -> {return "black";}
+            case "black" -> {return "white";}
+        }
+        return "ERROR!!";
     }
 
     void CheckBoard(){
