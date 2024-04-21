@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String enPassant, move, chosenPiece, moveCombo;
+    String enPassant, move, chosenPiece, moveCombo, isInCheck, checkFrom;
     String errorType = "";
     String[] court = new String[64];
     int enPassantSquare;
@@ -19,16 +19,18 @@ public class Programm {
     boolean premoveActiv = false;
     boolean whiteKingMoved = false;
     boolean blackKingMoved = false;
+    boolean gameContinue = true;
 
     void start(){
         if (gameRunning) {
-            CheckGameStatus();
+            CheckGameState();
         }
-        if (!gameRunning) {
+        if (!gameRunning && gameContinue) {
         BordDefinition();
         //TestBoardDefinition();
         gameRunning = true;
         }
+        if (gameRunning) {
         if (!premoveActiv) {
             EnterMove();
         }else{Premove();}
@@ -46,27 +48,64 @@ public class Programm {
             MoveIllegal();
         }
         EnPassantable();
-        if (gameRunning) {
             start();
         }
     }
+    void GameOver(){
+        gameRunning = false;
+        gameContinue = false;
+    }
 
-    void CheckGameStatus(){
+    void CheckGameState(){
+        if (GetKingPosition("white") == -1) {
+            System.out.println("Schwarz gewinnt!");
+            GameOver();
+        }
+        if (GetKingPosition("black") == -1) {
+            System.out.println("Weiß gwinnt!");
+            GameOver();
+        }
+        CheckForCheck("black");
+    }
+
+    int GetKingPosition(String color){
         String[] kings = new String[2];
-        int kingNumber = 0;
         for (int i = 0; i < court.length; i++) {
-            if (ConvertSquareToPiece(court[i], false).equals("King")) {
-                kings[kingNumber] = ConvertSquareToPiece(court[i], true);
-                kingNumber ++;
+            if (ConvertSquareToPiece(court[i], false).equals("King") && ConvertPieceColor(i).equals(color)) {
+                return i;
             }
         }
-        if (kingNumber == 1) {
-            System.out.println("Gewinner: " + kings[0]);
+        return -1;
+    }
+
+    void CheckForCheck(String toCheck){
+        if (toCheck.equals("white") || toCheck.equals("black")) {
+            toCheck = GetKingPosition(toCheck) +"";
+        }
+        int kingToCheck = Integer.parseInt(toCheck);
+        for (int i = 0; i < 2; i++) {
+            if (CheckDiagonalCheck(kingToCheck) || CheckColumRowCheck() || CheckLMovementCheck()) {
+                if (i == 1) {
+                    isInCheck = "white";
+                }else{
+                    isInCheck = "black";
+                }
+                break;
+            }
+            isInCheck = "none";
         }
     }
 
-    void CheckForCheck(){
-    }
+
+
+
+
+
+
+
+
+
+
 
     void EnPassantable(){
         enPassantSquare = 1000;
@@ -111,7 +150,6 @@ public class Programm {
     }
 
     void EnterMove(){
-        CheckBoard();
         Scanner ScanObj = new Scanner(System.in);
         System.out.println("Make your move: ");
         move = ScanObj.nextLine();
@@ -248,6 +286,11 @@ public class Programm {
         return piece;
     }
 
+    String ConvertPieceColor(int square){
+        String[] pieceOnSquare = court[square].split("");
+        return ConvertColor(pieceOnSquare[0]);
+    }
+
     void CheckMove(){
         System.out.println("chosen: " + chosenPiece);
         String piecesWOColor = Regex(chosenPiece, "[a-z]{5}.", 1);
@@ -311,6 +354,10 @@ public class Programm {
             System.out.println("King moves");
             return true;
         }
+        return false;
+    }
+
+    boolean CheckCastle(){
         return false;
     }
 
@@ -481,6 +528,24 @@ public class Programm {
             checkLeft += 7;
             checkRight += 9;
         }
+        return false;
+    }
+
+    boolean CheckDiagonalCheck(int toCheckStart){
+        int add = 7;
+        for (int i = add; i < 63 && i >= 0; i += add) {
+            String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],false);
+            if(potentialChecker.equals("Bishop") || potentialChecker.equals("Queen")){
+                System.out.println("Check: " + potentialChecker);
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean CheckColumRowCheck(){
+        return false;
+    }
+    boolean CheckLMovementCheck(){
         return false;
     }
 
