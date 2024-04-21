@@ -92,7 +92,8 @@ public class Programm {
             }
             isInCheck = "none";
         }
-        if (toCheck.equals(ConvertSquareToPiece(toCheck, false))) {
+        toCheck = ConvertSquareToColor(toCheck);
+        if (toCheck.equals("black")) {
             CheckForCheck("white");
         }
     }
@@ -274,6 +275,11 @@ public class Programm {
             return ConvertColor(squareOccupation[0]) + " " + ConvertToPiece(squareOccupation[1]);
         }
         return ConvertToPiece(squareOccupation[1]);
+    }
+
+    String ConvertSquareToColor(String square){
+      int square2 = Integer.parseInt(square);
+      return Regex(ConvertSquareToPiece(court[square2], true), "[ ]...", 0);
     }
 
     String ConvertToPiece(String toConvert){
@@ -592,11 +598,13 @@ public class Programm {
         int[] possibleMoves = new int[]{10, 15, 6, 17};
         //for (int i = 0; i < possibleMoves.length; i++) {
         for (int possibleMove : possibleMoves) {
-            if (ConvertSquareToPiece(court[toCheckStart + possibleMove], false).equals("Knight")) {
-                System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove));
-                return true;
+            if (toCheckStart + possibleMove >= 0 && toCheckStart + possibleMove < 64) {
+                if (ConvertSquareToPiece(court[toCheckStart + possibleMove], false).equals("Knight")) {
+                    System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove));
+                    return true;
+                }
             }
-        }
+            }
         return false;
     }
 
