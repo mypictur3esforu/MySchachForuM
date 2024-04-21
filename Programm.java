@@ -14,6 +14,7 @@ public class Programm {
     int isOnSquare = 0;
     int moveToSquare = 0;
     int premoveOrder = 0;
+    int step = 0;
     boolean gameRunning = false;
     boolean moveLegal = false;
     boolean premoveActiv = false;
@@ -532,13 +533,23 @@ public class Programm {
     }
 
     boolean CheckDiagonalCheck(int toCheckStart){
-        int add = 7;
-        for (int i = add; i < 63 && i >= 0; i += add) {
+        int[] add = new int[]{7, -7, 9, -9};
+        for (int i = add[step]; i <= 63 - toCheckStart && i >= -toCheckStart; i += add[step]) {
             String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],false);
             if(potentialChecker.equals("Bishop") || potentialChecker.equals("Queen")){
-                System.out.println("Check: " + potentialChecker);
+                System.out.println(potentialChecker + " Check from: " + toCheckStart + i);
+                step = 0;
                 return true;
             }
+            if (potentialChecker.equals("0")) {
+                break;
+            }
+        }
+        if (step <= 1) {
+            step++;
+            CheckDiagonalCheck(toCheckStart);
+        }else{
+            step = 0;
         }
         return false;
     }
