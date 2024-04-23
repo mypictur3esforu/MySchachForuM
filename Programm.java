@@ -9,13 +9,17 @@ public class Programm {
     String move, chosenPiece, moveCombo, isInCheck, checkFrom;
     String enPassant = "false";
     String errorType = "";
+    String winner = "";
     String[] court = new String[64];
+    String[] isInCheckArray = new String[]{"", ""};
     int enPassantSquare;
     int squareNumber = 0;
     int isOnSquare = 0;
     int moveToSquare = 0;
     int premoveOrder = 0;
     int step = 0;
+    int blackCheckCount = 0;
+    int whiteCheckCount = 0;
     boolean gameRunning = false;
     boolean moveLegal = false;
     boolean premoveActiv = false;
@@ -56,18 +60,24 @@ public class Programm {
     void GameOver(){
         gameRunning = false;
         gameContinue = false;
+        System.out.println(winner + " gewinnt!");
     }
 
     void CheckGameState(){
         if (GetKingPosition("white") == -1) {
-            System.out.println("Schwarz gewinnt!");
-            GameOver();
+            winner = "Schwarz";
         }
         if (GetKingPosition("black") == -1) {
-            System.out.println("Weiß gwinnt!");
-            GameOver();
+            winner = "Weiß";
         }
         CheckForCheck("black");
+
+        if (whiteCheckCount > 1) winner = "Schwarz";
+        if (blackCheckCount > 1) winner = "Weiß";
+
+        if (!winner.isEmpty()) {
+            GameOver();
+        }
     }
 
     int GetKingPosition(String color){
@@ -87,15 +97,25 @@ public class Programm {
         int kingToCheck = Integer.parseInt(toCheck);
         for (int i = 0; i < 1; i++) {
             if (CheckDiagonalCheck(kingToCheck) || CheckLMovementCheck(kingToCheck) ||  CheckForColumnRowCheck(kingToCheck)) {
-                isInCheck = "true";
+                isInCheck = ConvertSquareToColor(toCheck);
+                isInCheckArray[step] = ConvertSquareToColor(toCheck);
+                CheckIfNewCheck();
                 break;
             }
             isInCheck = "none";
         }
+        step++;
         toCheck = ConvertSquareToColor(toCheck);
         if (toCheck.equals("black")) {
             CheckForCheck("white");
         }
+        step = 0;
+    }
+
+    void CheckIfNewCheck(){
+        if (isInCheckArray[0].equals("black")) blackCheckCount++;
+        if (isInCheckArray[1].equals("white")) whiteCheckCount++;
+
     }
 
     void EnPassantable(){
@@ -149,6 +169,7 @@ public class Programm {
         //ScanObj.close();
         System.out.println(move);
         if (move.equals("premove")) {
+            premoveOrder = 0;
             Scanner ScanObjNr2 = new Scanner(System.in);
             System.out.println("Type in your move order: ");
             moveCombo = ScanObjNr2.nextLine();
