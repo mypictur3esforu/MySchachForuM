@@ -10,6 +10,7 @@ public class Programm {
     String enPassant = "false";
     String errorType = "";
     String[] court = new String[64];
+    String[] isInCheckArray = new String[2];
     int enPassantSquare;
     int squareNumber = 0;
     int isOnSquare = 0;
@@ -64,7 +65,7 @@ public class Programm {
             GameOver();
         }
         if (GetKingPosition("black") == -1) {
-            System.out.println("Weiß gwinnt!");
+            System.out.println("Weiß gewinnt!");
             GameOver();
         }
         CheckForCheck("black");
@@ -81,21 +82,24 @@ public class Programm {
     }
     //methode hat parameter, damit man nicht nur Position von Köningen testen kann, bei CheckGameSate ist die Funktion standardmäßig auf Schwarz
     void CheckForCheck(String toCheck){
+        String colorToCheck = ConvertSquareToColor(toCheck);
         if (toCheck.equals("white") || toCheck.equals("black")) {
             toCheck = GetKingPosition(toCheck) +"";
         }
         int kingToCheck = Integer.parseInt(toCheck);
         for (int i = 0; i < 1; i++) {
             if (CheckDiagonalCheck(kingToCheck) || CheckLMovementCheck(kingToCheck) ||  CheckForColumnRowCheck(kingToCheck)) {
-                isInCheck = "true";
+                isInCheck = colorToCheck;
+                isInCheckArray[step] = colorToCheck;
                 break;
             }
             isInCheck = "none";
         }
-        toCheck = ConvertSquareToColor(toCheck);
-        if (toCheck.equals("black")) {
+        step++;
+        if (colorToCheck.equals("black")) {
             CheckForCheck("white");
         }
+        step = 0;
     }
 
     void EnPassantable(){
@@ -149,6 +153,7 @@ public class Programm {
         //ScanObj.close();
         System.out.println(move);
         if (move.equals("premove")) {
+            premoveOrder = 0;
             Scanner ScanObjNr2 = new Scanner(System.in);
             System.out.println("Type in your move order: ");
             moveCombo = ScanObjNr2.nextLine();
