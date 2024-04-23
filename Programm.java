@@ -575,7 +575,7 @@ public class Programm {
         }
         if (add > 0) {
             add *= -1;
-            ColumRowCheckCheck(toCheckStart, add);
+            return ColumRowCheckCheck(toCheckStart, add);
         }
         return false;
     }
