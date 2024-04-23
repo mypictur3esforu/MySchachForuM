@@ -409,6 +409,10 @@ public class Programm {
             case "black" -> step = 0;
             case "white" -> step = 1;
         }
+        if (Math.abs(isOnSquare - moveToSquare) != 2) {
+            ErrorType("Zu diesem Feld kann der König nicht rochieren!");
+            return false;
+        }
         if (step == 0 && blackKingMoved) {
             ErrorType("Der schwarze König wurde bereits bewegt und darf nicht mehr rochieren!");
             return false;
@@ -421,7 +425,7 @@ public class Programm {
             if (CheckBetweenKingRook()) {
                 return true;
             }else{
-                ErrorType("Der König befindet sich im Schach und somit nich rochieren!");
+                ErrorType("Der König befindet sich im Schach und somit nicht rochieren!");
                 return false;
             }
         }
