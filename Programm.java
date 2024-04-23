@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Programm {
     String toMove = "white";
-    String move, chosenPiece, moveCombo, isInCheck, checkFrom;
+    String move, chosenPiece, moveCombo, checkFrom;
     String enPassant = "false";
     String errorType = "";
     String winner = "";
@@ -26,14 +26,15 @@ public class Programm {
     boolean whiteKingMoved = false;
     boolean blackKingMoved = false;
     boolean gameContinue = true;
+    boolean isInCheck = false;
 
     void start(){
         if (gameRunning) {
             CheckGameState();
         }
         if (!gameRunning && gameContinue) {
-        BordDefinition();
-        //TestBoardDefinition();
+        //BordDefinition();
+        TestBoardDefinition();
         gameRunning = true;
         }
         if (gameRunning) {
@@ -89,7 +90,7 @@ public class Programm {
         }
         return -1;
     }
-    //methode hat parameter, damit man nicht nur Position von Köningen testen kann, bei CheckGameSate ist die Funktion standardmäßig auf Schwarz
+    //methode hat parameter, damit man nicht nur Position von Königen testen kann, bei CheckGameSate ist die Funktion standardmäßig auf Schwarz
     void CheckForCheck(String toCheck){
         if (toCheck.equals("white") || toCheck.equals("black")) {
             toCheck = GetKingPosition(toCheck) +"";
@@ -97,12 +98,13 @@ public class Programm {
         int kingToCheck = Integer.parseInt(toCheck);
         for (int i = 0; i < 1; i++) {
             if (CheckDiagonalCheck(kingToCheck) || CheckLMovementCheck(kingToCheck) ||  CheckForColumnRowCheck(kingToCheck)) {
-                isInCheck = ConvertSquareToColor(toCheck);
+                isInCheck = true;
                 isInCheckArray[step] = ConvertSquareToColor(toCheck);
                 CheckIfNewCheck();
+                CheckForMate();
                 break;
             }
-            isInCheck = "none";
+            isInCheck = false;
         }
         step++;
         toCheck = ConvertSquareToColor(toCheck);
@@ -115,6 +117,10 @@ public class Programm {
     void CheckIfNewCheck(){
         if (isInCheckArray[0].equals("black")) blackCheckCount++;
         if (isInCheckArray[1].equals("white")) whiteCheckCount++;
+
+    }
+
+    void CheckForMate(){
 
     }
 
@@ -156,10 +162,10 @@ public class Programm {
 
     void TestBoardDefinition(){
         Arrays.fill(court, "0");
-        court[59] = "wD";
-        court[48] = "wR";
+        court[56] = "wR";
         court[4] = "bK";
         court[60] = "wK";
+        court[43] = "bB";
     }
 
     void EnterMove(){
@@ -391,11 +397,50 @@ public class Programm {
             System.out.println("King moves");
             return true;
         }
+        if (CheckCastle()) {
+            System.out.println("Castling");
+            return true;
+        }
         return false;
     }
 
     boolean CheckCastle(){
+        switch (toMove){
+            case "black" -> step = 0;
+            case "white" -> step = 1;
+        }
+        if (step == 0 && blackKingMoved) {
+            return false;
+        }
+        if (step == 1 && whiteKingMoved) {
+            return false;
+        }
+        if (isInCheckArray[step].isEmpty()) {
+            return CheckBetweenKingRook();
+        }
         return false;
+    }
+    
+    boolean CheckBetweenKingRook(){
+        int maximum = moveToSquare - isOnSquare;
+        int reverse = 1;
+        if (isOnSquare > moveToSquare) {
+            reverse = -1;
+            maximum = isOnSquare - moveToSquare;
+        }
+        int hallo = 0;
+        for (int i = 1; i <= maximum; i++) {
+            hallo++;
+            System.out.println("Hallo: " + hallo);
+            if (!ConvertSquareToPiece(court[isOnSquare + (i * reverse)], false).equals("0")) {
+                return false;
+            }
+            CheckForCheck((isOnSquare + (i * reverse)) + "");
+            if (isInCheck) {
+                return false;
+            }
+        }
+        return true;
     }
 
     boolean CheckPawn() {
@@ -517,9 +562,13 @@ public class Programm {
             minimum = GetRow(toCheckStart);
             limit = minimum + 7;
         }
+        String neededColor = ReverseColor(ConvertPieceColor(toCheckStart));
+        if (court[toCheckStart].equals("0")) {
+            neededColor = ReverseColor(toMove);
+        }
         for (int i = add; i <= limit - toCheckStart && i >= minimum - toCheckStart; i += add) {
             String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i], true);
-            if (potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Rook") || potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Queen")) {
+            if (potentialChecker.equals(neededColor + " Rook") || potentialChecker.equals(neededColor + " Queen")) {
                 System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i) + "\nCheck to: " + ConvertPieceColor(toCheckStart) + " King!");
                 return true;
             }
@@ -596,10 +645,14 @@ public class Programm {
     }
 
     boolean CheckDiagonalCheck(int toCheckStart){
+        String neededColor = ReverseColor(ConvertPieceColor(toCheckStart));
+        if (court[toCheckStart].equals("0")) {
+            neededColor = ReverseColor(toMove);
+        }
         int[] add = new int[]{7, -7, 9, -9};
         for (int i = add[step]; i <= 63 - toCheckStart && i >= -toCheckStart; i += add[step]) {
             String potentialChecker = ConvertSquareToPiece(court[toCheckStart + i],true);
-            if(potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Bishop") || potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Queen")){
+            if( potentialChecker.equals(neededColor + " Bishop") || potentialChecker.equals(neededColor + " Queen")){
                 System.out.println(potentialChecker + " Check from: " + ConvertSquareBack(toCheckStart + i) + "\nCheck to: " + ConvertPieceColor(toCheckStart) + " King!");
                 step = 0;
                 return true;
@@ -608,9 +661,9 @@ public class Programm {
                 break;
             }
         }
-        if (step <= 1) {
+        if (step <= 2) {
             step++;
-            CheckDiagonalCheck(toCheckStart);
+            return CheckDiagonalCheck(toCheckStart);
         }else{
             step = 0;
         }
@@ -618,12 +671,16 @@ public class Programm {
     }
 
     boolean CheckLMovementCheck(int toCheckStart){
+        String neededColor = ReverseColor(ConvertPieceColor(toCheckStart));
+        if (court[toCheckStart].equals("0")) {
+            neededColor = ReverseColor(toMove);
+        }
         int[] possibleMoves = new int[]{10, 15, 6, 17};
         //for (int i = 0; i < possibleMoves.length; i++) {
         for (int possibleMove : possibleMoves) {
             if (toCheckStart + possibleMove >= 0 && toCheckStart + possibleMove < 64) {
                 String potentialChecker = ConvertSquareToPiece(court[toCheckStart + possibleMove], true);
-                if (potentialChecker.equals(ReverseColor(ConvertPieceColor(toCheckStart)) + " Knight")) {
+                if (potentialChecker.equals(ReverseColor(neededColor + " Knight"))) {
                     System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove) + "\nCheck to: " + ConvertPieceColor(toCheckStart));
                     return true;
                 }
