@@ -410,13 +410,20 @@ public class Programm {
             case "white" -> step = 1;
         }
         if (step == 0 && blackKingMoved) {
+            ErrorType("Der schwarze König wurde bereits bewegt und darf nicht mehr rochieren!");
             return false;
         }
         if (step == 1 && whiteKingMoved) {
+            ErrorType("Der weiße König wurde bereits bewegt und darf nicht mehr rochieren!");
             return false;
         }
         if (isInCheckArray[step].isEmpty()) {
-            return CheckBetweenKingRook();
+            if (CheckBetweenKingRook()) {
+                return true;
+            }else{
+                ErrorType("Der König befindet sich im Schach und somit nich rochieren!");
+                return false;
+            }
         }
         return false;
     }
