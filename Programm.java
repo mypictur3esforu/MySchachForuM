@@ -165,7 +165,7 @@ public class Programm {
         court[56] = "wR";
         court[4] = "bK";
         court[60] = "wK";
-        court[43] = "bB";
+        court[42] = "bR";
     }
 
     void EnterMove(){
@@ -671,21 +671,25 @@ public class Programm {
     }
 
     boolean CheckLMovementCheck(int toCheckStart){
+        int reverse = 1;
         String neededColor = ReverseColor(ConvertPieceColor(toCheckStart));
         if (court[toCheckStart].equals("0")) {
             neededColor = ReverseColor(toMove);
         }
         int[] possibleMoves = new int[]{10, 15, 6, 17};
         //for (int i = 0; i < possibleMoves.length; i++) {
-        for (int possibleMove : possibleMoves) {
-            if (toCheckStart + possibleMove >= 0 && toCheckStart + possibleMove < 64) {
-                String potentialChecker = ConvertSquareToPiece(court[toCheckStart + possibleMove], true);
-                if (potentialChecker.equals(ReverseColor(neededColor + " Knight"))) {
-                    System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + possibleMove) + "\nCheck to: " + ConvertPieceColor(toCheckStart));
-                    return true;
+        for (int a = 0; a < 2; a++) {
+            for (int possibleMove : possibleMoves) {
+                if (toCheckStart + (possibleMove * reverse) >= 0 && toCheckStart + (possibleMove * reverse) < 64) {
+                    String potentialChecker = ConvertSquareToPiece(court[toCheckStart + (possibleMove * reverse)], true);
+                    if (potentialChecker.equals(neededColor + " Knight")) {
+                        System.out.println("Knight check from: " + ConvertSquareBack(toCheckStart + (possibleMove * reverse)) + "\nCheck to: " + ConvertPieceColor(toCheckStart));
+                        return true;
+                    }
                 }
             }
-            }
+            reverse = -1;
+        }
         return false;
     }
 
