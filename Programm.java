@@ -33,8 +33,8 @@ public class Programm {
             CheckGameState();
         }
         if (!gameRunning && gameContinue) {
-        //BordDefinition();
-        TestBoardDefinition();
+        BordDefinition();
+        //TestBoardDefinition();
         gameRunning = true;
         }
         if (gameRunning) {
