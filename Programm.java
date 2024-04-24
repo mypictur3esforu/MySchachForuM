@@ -99,7 +99,7 @@ public class Programm {
         for (int i = 0; i < 1; i++) {
             if (CheckDiagonalCheck(kingToCheck) || CheckLMovementCheck(kingToCheck) ||  CheckForColumnRowCheck(kingToCheck)) {
                 isInCheck = true;
-                isInCheckArray[step] = ConvertSquareToColor(toCheck);
+                isInCheckArray[step] = ConvertPieceColor(kingToCheck);
                 CheckIfNewCheck();
                 CheckForMate();
                 break;
@@ -107,7 +107,7 @@ public class Programm {
             isInCheck = false;
         }
         step++;
-        toCheck = ConvertSquareToColor(toCheck);
+        toCheck = ConvertPieceColor(kingToCheck);
         if (toCheck.equals("black")) {
             CheckForCheck("white");
         }
@@ -305,11 +305,6 @@ public class Programm {
         return ConvertToPiece(squareOccupation[1]);
     }
 
-    String ConvertSquareToColor(String square){
-      int square2 = Integer.parseInt(square);
-      return Regex(ConvertSquareToPiece(court[square2], true), "[ ]...", 0);
-    }
-
     String ConvertToPiece(String toConvert){
         //System.out.println("Convert: " + toConvert);
         String piece = "ERROR!!!";
@@ -465,7 +460,7 @@ public class Programm {
         }
         if (isOnSquare >= startRow && isOnSquare <= endRow) {
             if (CheckInFront(isOnSquare, moveToSquare, (2 * reverse))) {
-                enPassant = "true";
+                enPassant = "true"; //alternativ hätte man hier auch EnPassantable() starten können, aber so ist EnPassant Möglichkeit beenden einfacher, glaube ich zumindest
                 System.out.println("Pawn moves! 2");
                 return true;
             }
@@ -502,6 +497,7 @@ public class Programm {
         if (toCheckStart + frontOrBack == toCheckEnd) {
             return true;
         }
+        ErrorType("Der Bauer kann sich nicht bewegen, weil eine Figur im Weg ist!");
         return false;
     }
 
